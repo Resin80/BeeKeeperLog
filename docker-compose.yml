@@ -1,0 +1,9 @@
+services:
+  bee-keeper-log:
+    build: .
+    container_name: bee-keeper-log
+    ports:
+      - "3001:3001"
+    volumes:
+      - /mnt/user/appdata/bee-keeper-log:/data
+    restart: unless-stopped

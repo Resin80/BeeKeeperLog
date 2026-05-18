@@ -1,0 +1,20 @@
+{
+  "name": "beehive-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install-all": "npm install && npm install --workspaces",
+    "setup": "npm run install-all && npm run build",
+    "dev": "npm run dev --workspace=packages/api & npm run dev --workspace=packages/ui",
+    "build": "npm run build --workspace=packages/ui",
+    "start": "npm run dev --workspace=packages/api",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "workspaces": [
+    "packages/*"
+  ]
+}

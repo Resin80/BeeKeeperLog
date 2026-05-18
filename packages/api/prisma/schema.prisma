@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Apiary {
+  id        String   @id @default(uuid())
+  name      String
+  latitude  Float?
+  longitude Float?
+  notes     String?
+  hives     Hive[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Hive {
+  id          String       @id @default(uuid())
+  name        String
+  type        String       // Langstroth, Top Bar, Warre, Other
+  installDate DateTime
+  latitude    Float?
+  longitude   Float?
+  honeySupers Int          @default(0)
+  broodBoxes  Int          @default(1)
+  queenColor  String?      // White, Yellow, Red, Green, Blue, Unmarked
+  status      String       @default("Active") // Active, Inactive, Dead
+  notes       String?
+  imagePath   String?      // Path to hive profile photo
+  apiaryId    String
+  apiary      Apiary       @relation(fields: [apiaryId], references: [id], onDelete: Cascade)
+  inspections Inspection[]
+  harvests    Harvest[]
+  treatments  Treatment[]
+  feedings    Feeding[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Inspection {
+  id               String   @id @default(uuid())
+  date             DateTime @default(now())
+  queenSeen        Boolean  @default(false)
+  queenColor       String?  // Observed color if queen seen
+  eggsPresent      Boolean  @default(false)
+  broodPattern     String   // Solid, Spotty, Poor
+  temperament      String   // Calm, Nervous, Aggressive
+  population       String   // Low, Average, High
+  queenCellsFound  Boolean  @default(false)
+  queenCellsAction String?  // Destroyed, Left to re-queen, etc.
+  broodBoxes       Int      @default(1)
+  framesOfBees     Int?     // Number of frames occupied by bees
+  framesOfFood     Int?     // Number of frames occupied by food stores
+  frameData        String?  // JSON string representing visual frame occupancy (0: empty, 1: bees, 2: food)
+  honeySupers      Int?     // Number of supers at time of inspection
+  miteCount        Int?
+  diseaseSigns     String?
+  imagePath        String?  // Path to inspection photo
+  notes            String?
+  hiveId           String
+  hive         Hive     @relation(fields: [hiveId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Feeding {
+  id        String   @id @default(uuid())
+  date      DateTime @default(now())
+  type      String   // 1:1 Syrup, 2:1 Syrup, Fondant, Pollen Patty
+  amount    String   // e.g. 5 Litres, 1 Block
+  notes     String?
+  hiveId    String
+  hive      Hive     @relation(fields: [hiveId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Harvest {
+  id          String   @id @default(uuid())
+  date        DateTime @default(now())
+  weight      Float
+  productType String   // Honey, Wax, Propolis, Pollen
+  notes       String?
+  hiveId      String
+  hive        Hive     @relation(fields: [hiveId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Treatment {
+  id          String   @id @default(uuid())
+  date        DateTime @default(now())
+  productUsed String
+  quantity    String
+  notes       String?
+  hiveId      String
+  hive        Hive     @relation(fields: [hiveId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
