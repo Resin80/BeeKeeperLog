@@ -1,3 +1,12 @@
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 2s linear infinite;
+}
+
 :root {
   --primary-color: #FFB900;
   --secondary-color: #4CAF50;
@@ -323,7 +332,21 @@ body {
   }
 
   .btn-text {
-    display: none; /* Hide 'Print', 'Edit', 'Delete' labels on very small screens to save space */
+    display: none !important;
+  }
+
+  .action-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 8px;
+    width: auto;
+  }
+
+  .action-buttons .btn {
+    width: auto;
+    padding: 10px;
+    flex: 0 1 auto;
   }
 
   .history-grid {

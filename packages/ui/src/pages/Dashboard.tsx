@@ -18,37 +18,66 @@ const Dashboard: React.FC = () => {
         setHives(hivesData);
         setApiaries(apiariesData);
         
-        // 1. Calculate Reminders (Discovery of Queen Cells + 16 days)
+        // 1. Calculate Reminders
         const allReminders: any[] = [];
         hivesData.forEach((hive: any) => {
+          // A. Queen Checks (Discovery of Queen Cells + 16 days)
           if (hive.inspections?.length > 0) {
-            // Find the most recent inspection where queen cells were actually found
             const cellDiscoveryInspec = [...hive.inspections]
               .filter((i: any) => i.queenCellsFound)
               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
-            // Fallback to latest inspection only if hive is marked Queenless but no cells recorded yet
             const baseInspec = cellDiscoveryInspec || 
               (hive.queenColor === 'Queenless' ? [...hive.inspections].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0] : null);
 
             if (baseInspec) {
               const checkDate = new Date(baseInspec.date);
               checkDate.setDate(checkDate.getDate() + 16);
-              
               const daysDiff = Math.ceil((checkDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-              
-              // Only show if it's a "Queenless" context or cells were found
               if (hive.queenColor === 'Queenless' || cellDiscoveryInspec) {
                 allReminders.push({
                   hiveId: hive.id,
                   hiveName: hive.name,
                   date: checkDate,
                   daysLeft: daysDiff,
-                  reason: cellDiscoveryInspec ? 'Cells Found' : 'Marked Queenless'
+                  reason: cellDiscoveryInspec ? 'Queen Check (Cells Found)' : 'Queen Check (Queenless)',
+                  type: 'queen'
                 });
               }
             }
           }
+
+          // B. Treatment Reminders
+          (hive.treatments || []).forEach((t: any) => {
+            if (t.reminderDate) {
+              const remDate = new Date(t.reminderDate);
+              const daysDiff = Math.ceil((remDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+              allReminders.push({
+                hiveId: hive.id,
+                hiveName: hive.name,
+                date: remDate,
+                daysLeft: daysDiff,
+                reason: `Treatment: ${t.productUsed}`,
+                type: 'treatment'
+              });
+            }
+          });
+
+          // C. Harvest Reminders
+          (hive.harvests || []).forEach((h: any) => {
+            if (h.reminderDate) {
+              const remDate = new Date(h.reminderDate);
+              const daysDiff = Math.ceil((remDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+              allReminders.push({
+                hiveId: hive.id,
+                hiveName: hive.name,
+                date: remDate,
+                daysLeft: daysDiff,
+                reason: `Harvest Check: ${h.productType}`,
+                type: 'harvest'
+              });
+            }
+          });
         });
         setReminders(allReminders.sort((a, b) => a.date.getTime() - b.date.getTime()));
 
@@ -137,12 +166,12 @@ const Dashboard: React.FC = () => {
         <Link to="/apiaries/new" className="btn btn-primary" style={{ textDecoration: 'none' }}>+ Add New Site</Link>
       </div>
 
-      {/* ⚠️ QUEENLESS REMINDERS SECTION */}
+      {/* 📅 UPCOMING REMINDERS SECTION */}
       {reminders.length > 0 && (
-        <div className="card" style={{ background: '#FFF0F0', border: '1px solid #FFCDD2', marginBottom: '30px' }}>
+        <div className="card" style={{ background: '#FFFDF5', border: '1px solid #FFB900', marginBottom: '30px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
-            <AlertCircle size={24} color="#D32F2F" />
-            <h2 style={{ margin: 0, color: '#D32F2F', fontSize: '1.4rem' }}>Queen Checks Required</h2>
+            <AlertCircle size={24} color="#FFB900" />
+            <h2 style={{ margin: 0, color: '#332B00', fontSize: '1.4rem' }}>Upcoming Hive Tasks</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {reminders.map((rem, idx) => (
@@ -153,13 +182,15 @@ const Dashboard: React.FC = () => {
                 padding: '12px', 
                 background: '#fff', 
                 borderRadius: '8px',
-                border: '1px solid #FFEBEE'
+                border: '1px solid #FFE082',
+                borderLeft: `5px solid ${rem.type === 'queen' ? '#D32F2F' : (rem.type === 'treatment' ? '#4CAF50' : '#FFB900')}`
               }}>
                 <div>
                   <div style={{ fontWeight: 'bold' }}>
                     <Link to={`/hives/${rem.hiveId}`} style={{ color: '#5D4037', textDecoration: 'none' }}>{rem.hiveName}</Link>
                   </div>
-                  <div style={{ fontSize: '0.85rem', color: '#666' }}>Check due: {rem.date.toLocaleDateString()}</div>
+                  <div style={{ fontSize: '0.85rem', color: '#666' }}>{rem.reason}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#999' }}>Due: {rem.date.toLocaleDateString()}</div>
                 </div>
                 <div style={{ 
                   padding: '4px 10px', 

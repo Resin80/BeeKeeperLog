@@ -10,6 +10,7 @@ import TreatmentForm from './pages/TreatmentForm';
 import FeedingForm from './pages/FeedingForm';
 import GlobalReport from './pages/GlobalReport';
 import Wiki from './pages/Wiki';
+import SyncStatus from './components/SyncStatus';
 import './styles/global.css';
 import 'leaflet/dist/leaflet.css';
 import { CloudOff, LayoutDashboard, Bug, FileText, BookOpen } from 'lucide-react';
@@ -40,6 +41,7 @@ function App() {
               <img src="/favicon.svg" alt="Bee Logo" style={{ width: '40px', height: '40px' }} />
               <span>BeeKeeper's Log</span>
             </Link>
+            <SyncStatus />
             {isOffline && (
               <div style={{ 
                 display: 'flex', 

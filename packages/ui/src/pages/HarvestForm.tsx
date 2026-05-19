@@ -9,7 +9,8 @@ const HarvestForm: React.FC = () => {
     date: new Date().toISOString().split('T')[0],
     weight: '',
     productType: 'Honey',
-    notes: ''
+    notes: '',
+    reminderDate: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,7 +18,8 @@ const HarvestForm: React.FC = () => {
     try {
       await createHarvest({
         ...formData,
-        hiveId: id
+        hiveId: id,
+        reminderDate: formData.reminderDate ? new Date(formData.reminderDate).toISOString() : null
       });
       navigate(`/hives/${id}`);
     } catch (err) {
@@ -59,6 +61,17 @@ const HarvestForm: React.FC = () => {
                 <option>Pollen</option>
               </select>
             </div>
+          </div>
+
+          <div style={{ padding: '15px', background: '#FFF7E6', borderRadius: '12px', border: '1px solid #FFCC80' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#E65100' }}>Add Follow-up Reminder? (e.g. check for more supers)</label>
+            <input 
+              type="date" 
+              name="reminderDate" 
+              value={formData.reminderDate} 
+              onChange={handleChange} 
+              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }} 
+            />
           </div>
 
           <div>

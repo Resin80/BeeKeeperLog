@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { createInspection, updateInspection, fetchInspectionById, uploadImage } from '../services/api';
 import FrameSelector from '../components/FrameSelector';
-import { Camera } from 'lucide-react';
+import { Camera, Mic, MicOff } from 'lucide-react';
 
 const InspectionForm: React.FC = () => {
   const { id, inspId } = useParams<{ id: string, inspId?: string }>();
@@ -31,6 +31,44 @@ const InspectionForm: React.FC = () => {
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [isListening, setIsListening] = useState(false);
+
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice recognition is not supported in this browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setFormData(prev => ({
+        ...prev,
+        notes: prev.notes ? `${prev.notes} ${transcript}` : transcript
+      }));
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
 
   useEffect(() => {
     if (isEdit && inspId) {
@@ -310,7 +348,25 @@ const InspectionForm: React.FC = () => {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Notes</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <label style={{ fontWeight: 'bold' }}>Notes</label>
+              <button 
+                type="button" 
+                onClick={startListening}
+                className={`btn ${isListening ? 'btn-danger' : 'btn-secondary'}`}
+                style={{ 
+                  padding: '4px 12px', 
+                  fontSize: '0.8rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '5px',
+                  background: isListening ? '#ffebee' : '#f5f5f5'
+                }}
+              >
+                {isListening ? <MicOff size={14} /> : <Mic size={14} />}
+                {isListening ? 'Listening...' : 'Dictate'}
+              </button>
+            </div>
             <textarea 
               name="notes" 
               value={formData.notes} 

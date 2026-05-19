@@ -264,6 +264,43 @@ const HiveDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Gallery Section */}
+      {hive.inspections?.some((insp: any) => insp.imagePath) && (
+        <div style={{ marginTop: '40px' }}>
+          <h2 style={{ marginBottom: '20px' }}>Hive Gallery</h2>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', 
+            gap: '10px' 
+          }}>
+            {hive.inspections
+              .filter((insp: any) => insp.imagePath)
+              .map((insp: any) => (
+                <div key={insp.id} style={{ position: 'relative', paddingTop: '100%', overflow: 'hidden', borderRadius: '8px', border: '1px solid #ddd', cursor: 'pointer' }} onClick={() => window.open(insp.imagePath, '_blank')}>
+                  <img 
+                    src={insp.imagePath} 
+                    alt={`Inspection ${new Date(insp.date).toLocaleDateString()}`} 
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} 
+                  />
+                  <div style={{ 
+                    position: 'absolute', 
+                    bottom: 0, 
+                    left: 0, 
+                    right: 0, 
+                    background: 'rgba(0,0,0,0.5)', 
+                    color: 'white', 
+                    fontSize: '0.7rem', 
+                    padding: '2px 5px',
+                    textAlign: 'center'
+                  }}>
+                    {new Date(insp.date).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

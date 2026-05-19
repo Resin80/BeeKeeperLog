@@ -50,7 +50,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Fallback to React app for client-side routing
-app.get('*any', (req, res) => {
+app.use((req, res) => {
   if (!req.path.startsWith('/api')) {
     res.sendFile(path.join(uiPath, 'index.html'));
   } else {

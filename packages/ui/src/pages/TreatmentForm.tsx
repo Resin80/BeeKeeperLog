@@ -9,7 +9,8 @@ const TreatmentForm: React.FC = () => {
     date: new Date().toISOString().split('T')[0],
     productUsed: '',
     quantity: '',
-    notes: ''
+    notes: '',
+    reminderDate: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,7 +18,8 @@ const TreatmentForm: React.FC = () => {
     try {
       await createTreatment({
         ...formData,
-        hiveId: id
+        hiveId: id,
+        reminderDate: formData.reminderDate ? new Date(formData.reminderDate).toISOString() : null
       });
       navigate(`/hives/${id}`);
     } catch (err) {
@@ -53,6 +55,17 @@ const TreatmentForm: React.FC = () => {
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Quantity / Dosage</label>
             <input type="text" name="quantity" value={formData.quantity} onChange={handleChange} placeholder="e.g. 50g tray, 5ml" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }} required />
+          </div>
+
+          <div style={{ padding: '15px', background: '#FFF7E6', borderRadius: '12px', border: '1px solid #FFCC80' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#E65100' }}>Add Reminder? (e.g. when to remove)</label>
+            <input 
+              type="date" 
+              name="reminderDate" 
+              value={formData.reminderDate} 
+              onChange={handleChange} 
+              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }} 
+            />
           </div>
 
           <div>
